@@ -1,4 +1,4 @@
-# ufc-project# Bayesian Sports Prediction System
+#Bayesian Sports Prediction System
 
 ## Overview
 This project implements a **Bayesian framework for predicting competitive sports outcomes**, based on a graduate capstone research study.
