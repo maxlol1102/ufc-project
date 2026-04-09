@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Analyze — MMA UFC Event Breakdown</title>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/analyze_style.css') }}">
+
+</head>
+<body>
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <div id="loader">
+    <div class="loader-text">EVENT <span>ANALYZE</span></div>
+    <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  </div>
+
+  <header class="site-header" id="header">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='img/UFC-icon.png') }}" alt="UFC" onerror="this.style.display='none'">
+    </div>
+    <nav class="main-nav">
+      <a href="/">Home</a>
+      <a href="/how_it_works">How It Works</a>
+      <a href="/analyze" class="active">Analyze</a>
+      <a href="/bayes_ai" class="nav-cta">Bayes AI →</a>
+    </nav>
+    <div class="hamburger" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </header>
+
+  <nav class="mobile-nav" id="mobileNav">
+    <a href="/">Home</a>
+    <a href="/how_it_works">How It Works</a>
+    <a href="/analyze">Analyze</a>
+    <a href="/bayes_ai" class="nav-cta">Bayes AI →</a>
+  </nav>
+
+  <main>
+
+    <section class="page-hero">
+      <div class="page-hero-bg"></div>
+      <canvas id="pageCanvas"></canvas>
+      <div class="page-hero-line"></div>
+      <div class="page-hero-inner">
+        <p class="page-eyebrow">Live UFC Event Intelligence</p>
+        <h1>Event<br><span>Analyze</span></h1>
+        <p class="page-hero-sub">Pull live upcoming UFC events from ufcstats.com, then run Bayesian model on every fight — real win probabilities, method breakdowns, and round-by-round heatmaps.</p>
+      </div>
+    </section>
+
+    <div class="ticker-wrap" aria-hidden="true">
+      <div class="ticker-track">
+        <div class="ticker-item">Live UFC Events</div>
+        <div class="ticker-item">Bayesian Win Probability</div>
+        <div class="ticker-item">KO · Sub · Decision</div>
+        <div class="ticker-item">Round Heatmap</div>
+        <div class="ticker-item">BT Skill Rating</div>
+        <div class="ticker-item">Real Model Predictions</div>
+        <div class="ticker-item">ufcstats.com Data</div>
+        <div class="ticker-item">Live UFC Events</div>
+        <div class="ticker-item">Bayesian Win Probability</div>
+        <div class="ticker-item">KO · Sub · Decision</div>
+        <div class="ticker-item">Round Heatmap</div>
+        <div class="ticker-item">BT Skill Rating</div>
+        <div class="ticker-item">Real Model Predictions</div>
+        <div class="ticker-item">ufcstats.com Data</div>
+      </div>
+    </div>
+
+    <!-- SELECTOR -->
+    <section class="event-selector-section">
+      <div class="event-selector-inner">
+        <div class="sel-group">
+          <div class="sel-label">Upcoming UFC Event</div>
+          <select class="sel-box" id="eventSelect">
+            <option value="" disabled>— Loading events… —</option>
+          </select>
+        </div>
+        <div class="sel-group">
+          <div class="sel-label">Filter by Card</div>
+          <select class="sel-box" id="cardFilter">
+            <option value="all">All Fights</option>
+            <option value="main">Main Card Only</option>
+            <option value="prelim">Prelims Only</option>
+          </select>
+        </div>
+        <button class="sel-btn" id="loadEventBtn" disabled>Analyze Event →</button>
+      </div>
+      <div class="status-msg" id="selectorStatus"></div>
+    </section>
+
+    <!-- BANNER -->
+    <div id="eventBanner">
+      <div class="event-banner">
+        <div class="event-banner-inner">
+          <div>
+            <div class="event-badge" id="bannerBadge">UFC EVENT</div>
+            <div class="event-main-title" id="bannerTitle">—</div>
+            <div class="event-meta"><span id="bannerDate">—</span>&nbsp;·&nbsp;<span id="bannerVenue">—</span></div>
+          </div>
+          <div style="text-align:right;">
+            <div class="event-fight-count" id="bannerFightCount">—<small>Fights on Card</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FIGHT CARDS -->
+    <div id="fightCardsSection">
+      <div class="fight-cards-section">
+        <div class="fight-cards-header">
+          <div>
+            <div class="section-label">Live Model Output</div>
+            <div class="fight-cards-title">Click Any Fight to Expand</div>
+          </div>
+          <div class="fight-cards-subtitle" id="fightCountLabel">—</div>
+        </div>
+        <div class="fight-cards-grid" id="fightCardsGrid"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <p>Advanced Bayesian AI fight prediction for MMA. Built for research, analytics, and sports intelligence.</p>
+      </div>
+      <div class="footer-nav-grid">
+        <div class="footer-nav-col">
+          <h4>Navigation</h4>
+          <a href="/">Home</a>
+          <a href="/how_it_works">How It Works</a>
+          <a href="/bayes_ai">Bayes AI</a>
+          <a href="/analyze">Analyze</a>
+        </div>
+        <div class="footer-nav-col">
+          <h4>Features</h4>
+          <a href="#">Fight Prediction</a>
+          <a href="#">Fighter Stats</a>
+          <a href="#">Event Analysis</a>
+        </div>
+        <div class="footer-nav-col">
+          <h4>Research</h4>
+          <a href="#">Methodology</a>
+          <a href="#">Data Sources</a>
+          <a href="#">Model Accuracy</a>
+        </div>
+      </div>
+    </div>
+    <p class="disclaimer"><strong>Disclaimer:</strong> Content and predictive models are for academic research only. Not intended for commercial use or wagering. All outputs are probabilistic estimates.</p>
+    <div class="footer-bottom">
+      <p>© 2025 MMA <span class="red-dot">●</span> UFC Prediction</p>
+      <p>Research &amp; Development Project</p>
+    </div>
+  </footer>
+
+  <button id="backTop" aria-label="Back to top">↑</button>
+
+  <script>
+  (() => {
+    'use strict';
+
+    /* ══════════════════════════════════════════════
+       BOOT
+    ══════════════════════════════════════════════ */
+    window.addEventListener('load', () => {
+      setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1400);
+      loadUpcomingEvents();
+    });
+
+    /* ══════════════════════════════════════════════
+       CURSOR
+    ══════════════════════════════════════════════ */
+    const cur  = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+    (function tick(){ cur.style.left=mx+'px'; cur.style.top=my+'px'; rx+=(mx-rx)*0.14; ry+=(my-ry)*0.14; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(tick); })();
+
+    /* ══════════════════════════════════════════════
+       HEADER / NAV
+    ══════════════════════════════════════════════ */
+    const header  = document.getElementById('header');
+    const backTop = document.getElementById('backTop');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 60);
+      backTop.classList.toggle('show', window.scrollY > 400);
+    }, { passive: true });
+    backTop.addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+    document.getElementById('hamburger').addEventListener('click', function() {
+      this.classList.toggle('active');
+      document.getElementById('mobileNav').classList.toggle('open');
+    });
+
+    /* ══════════════════════════════════════════════
+       CANVAS PARTICLES
+    ══════════════════════════════════════════════ */
+    const canvas = document.getElementById('pageCanvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, particles = [];
+    function resizeCanvas() { W=canvas.width=canvas.offsetWidth; H=canvas.height=canvas.offsetHeight; }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    class P { constructor(){ this.reset(); } reset(){ this.x=Math.random()*W; this.y=Math.random()*H; this.size=Math.random()*1.2+0.3; this.sx=(Math.random()-0.5)*0.3; this.sy=(Math.random()-0.5)*0.3; this.a=Math.random()*0.4+0.1; this.c=Math.random()<0.2?'#e8001d':Math.random()<0.1?'#00e5ff':'#ffffff'; } update(){ this.x+=this.sx; this.y+=this.sy; if(this.x<0||this.x>W||this.y<0||this.y>H) this.reset(); } draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fillStyle=this.c; ctx.globalAlpha=this.a; ctx.fill(); } }
+    for(let i=0;i<70;i++) particles.push(new P());
+    (function ap(){ ctx.clearRect(0,0,W,H); particles.forEach(p=>{p.update();p.draw();}); ctx.globalAlpha=1; requestAnimationFrame(ap); })();
+
+    /* ══════════════════════════════════════════════
+       SCROLL REVEALS
+    ══════════════════════════════════════════════ */
+    var revealObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(function(el) { revealObs.observe(el); });
+    var eventsData    = [];
+    var currentFights = [];
+    var cardFilter    = 'all';
+    var predCache     = {};  
+    var statsCache    = {};  
+
+    /* ══════════════════════════════════════════════
+       UTILITIES
+    ══════════════════════════════════════════════ */
+    function setStatus(msg, type) {
+      type = type || '';
+      var el = document.getElementById('selectorStatus');
+      el.textContent = msg;
+      el.className   = 'status-msg ' + type;
+    }
+
+    function show(id) {
+      var el = document.getElementById(id);
+      el.classList.remove('visible');
+      void el.offsetWidth;
+      el.classList.add('visible');
+    }
+
+    // Enable/disable the Analyze button based on whether an event is selected
+    function syncLoadBtn() {
+      var val = document.getElementById('eventSelect').value;
+      // Enable if value is a valid index (including "0" for the first event)
+      var isValid = (val !== '' && val !== null && val !== undefined && !isNaN(parseInt(val, 10)));
+      document.getElementById('loadEventBtn').disabled = !isValid;
+    }
+
+    /* ══════════════════════════════════════════════
+      GET UPCOMING EVENTS  →  GET /api/upcoming_events
+    ══════════════════════════════════════════════ */
+    async function loadUpcomingEvents() {
+      var sel = document.getElementById('eventSelect');
+      setStatus('Fetching upcoming UFC events from ufcstats.com…', 'loading');
+      try {
+        var res = await fetch('/api/upcoming_events');
+
+        // Check HTTP status first — catches 404 (route missing) and 500 (scraper error)
+        if (!res.ok) {
+          var errText = await res.text();
+          throw new Error('Server returned ' + res.status + ': ' + errText.slice(0, 120));
+        }
+
+        var data = await res.json();
+
+        if (data.error) throw new Error(data.error);
+
+        eventsData = data;
+
+        if (!Array.isArray(data) || data.length === 0) {
+          sel.innerHTML = '<option value="">— No upcoming events found —</option>';
+          setStatus('ufcstats.com returned no upcoming events right now. Try again later.', 'error');
+          return;
+        }
+
+        sel.innerHTML = '';
+        data.forEach(function(ev, i) {
+          var o = document.createElement('option');
+          o.value       = i;
+          o.textContent = ev.name + '  ·  ' + ev.date;
+          sel.appendChild(o);
+        });
+        setStatus(data.length + ' upcoming events loaded.', '');
+        // Auto-select the first real event so the button enables immediately
+        sel.value = '0';
+        syncLoadBtn();
+
+      } catch (err) {
+        sel.innerHTML = '<option value="">— Could not load events —</option>';
+
+        // Give a specific, actionable message for the most common failure causes
+        var msg = err.message || String(err);
+        var hint = '';
+        if (msg.includes('404')) {
+          hint = ' → The /api/upcoming_events route is missing from app.py. Add it and restart Flask.';
+        } else if (msg.includes('500')) {
+          hint = ' → Flask threw a 500. Check your terminal for the Python traceback (likely a missing import in scraper.py).';
+        } else if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+          hint = ' → Cannot reach the Flask server. Make sure app.py is running.';
+        } else if (msg.includes('Cannot access') || msg.includes('before initialization')) {
+          hint = ' → JavaScript state error. Hard-refresh the page (Ctrl+Shift+R).';
+        }
+
+        setStatus('⚠ ' + msg + hint, 'error');
+        console.error('[analyze] loadUpcomingEvents failed:', err);
+      }
+    }
+
+    /* ══════════════════════════════════════════════
+       SELECTOR EVENTS
+    ══════════════════════════════════════════════ */
+    document.getElementById('eventSelect').addEventListener('change', syncLoadBtn);
+    document.getElementById('cardFilter').addEventListener('change', function() {
+      cardFilter = this.value;
+      if (currentFights.length) renderFightCards(currentFights);
+    });
+    document.getElementById('loadEventBtn').addEventListener('click', async function() {
+      var sel = document.getElementById('eventSelect');
+      var raw = sel.value;
+      var idx = parseInt(raw, 10);
+
+      console.log('[analyze] button clicked — sel.value:', raw, '| idx:', idx, '| eventsData.length:', eventsData.length);
+
+      if (raw === '' || isNaN(idx)) {
+        setStatus('Please select an event first.', 'error');
+        return;
+      }
+      if (!eventsData || eventsData.length === 0) {
+        setStatus('Events not loaded yet — please wait a moment and try again.', 'error');
+        return;
+      }
+      if (!eventsData[idx]) {
+        setStatus('Event index ' + idx + ' not found. Try refreshing the page.', 'error');
+        return;
+      }
+
+      await loadEventFights(eventsData[idx]);
+    });
+
+    /* ══════════════════════════════════════════════
+       GET FIGHT CARD  →  GET /api/event_fights?url=…
+    ══════════════════════════════════════════════ */
+    async function loadEventFights(ev) {
+      console.log('[analyze] loadEventFights called with:', ev);
+      setStatus('Loading fight card for "' + ev.name + '"…', 'loading');
+      document.getElementById('loadEventBtn').disabled = true;
+      try {
+        var url = '/api/event_fights?url=' + encodeURIComponent(ev.url);
+        console.log('[analyze] fetching:', url);
+
+        var res = await fetch(url);
+        console.log('[analyze] response status:', res.status);
+
+        if (!res.ok) {
+          var txt = await res.text();
+          throw new Error('Server ' + res.status + ': ' + txt.slice(0, 200));
+        }
+
+        var data = await res.json();
+        console.log('[analyze] event data received:', data);
+
+        if (data.error) throw new Error(data.error);
+        if (!data.fights || data.fights.length === 0) throw new Error('No fights found for this event.');
+
+        currentFights = data.fights;
+
+        // Update banner
+        var isPN = data.title && data.title.toLowerCase().includes('fight night');
+        document.getElementById('bannerBadge').textContent       = isPN ? 'FIGHT NIGHT' : 'PPV EVENT';
+        document.getElementById('bannerTitle').textContent       = data.title || '—';
+        document.getElementById('bannerDate').textContent        = data.date  || '—';
+        document.getElementById('bannerVenue').textContent       = data.venue || data.location || '—';
+        document.getElementById('bannerFightCount').innerHTML    = data.fights.length + '<small>Fights on Card</small>';
+        show('eventBanner');
+
+        cardFilter = document.getElementById('cardFilter').value;
+        renderFightCards(data.fights);
+        setStatus('');
+
+      } catch (err) {
+        console.error('[analyze] loadEventFights error:', err);
+        setStatus('⚠ ' + err.message, 'error');
+      } finally {
+        document.getElementById('loadEventBtn').disabled = false;
+      }
+    }
+
+    /* ══════════════════════════════════════════════
+       RENDER FIGHT CARDS GRID
+    ══════════════════════════════════════════════ */
+    function renderFightCards(allFights) {
+      const grid = document.getElementById('fightCardsGrid');
+      grid.innerHTML = '';
+
+      let fights = allFights;
+      if (cardFilter === 'main')   fights = allFights.filter(f => f.card_section !== 'prelim' && f.card_section !== 'early_prelim');
+      if (cardFilter === 'prelim') fights = allFights.filter(f => f.card_section === 'prelim' || f.card_section === 'early_prelim');
+
+      document.getElementById('fightCountLabel').textContent = `${fights.length} Fight${fights.length !== 1 ? 's' : ''} Loaded`;
+
+      fights.forEach((fight, idx) => grid.appendChild(buildFightCard(fight, idx)));
+
+      show('fightCardsSection');
+      setTimeout(() => document.getElementById('fightCardsSection').scrollIntoView({ behavior:'smooth', block:'start' }), 120);
+    }
+
+    /* ══════════════════════════════════════════════
+       BUILD SINGLE FIGHT CARD
+    ══════════════════════════════════════════════ */
+    function buildFightCard(fight, idx) {
+      const fightId  = `fight-${idx}-${Date.now()}`;
+      const nameA    = fight.fighter_a || '—';
+      const nameB    = fight.fighter_b || '—';
+      const wc       = fight.weight_class || '';
+      const boutType = idx === 0 ? 'main' : idx === 1 ? 'co-main' : (fight.card_section === 'prelim' ? 'prelim' : 'main-card');
+      const boutLabel = { main:'Main Event', 'co-main':'Co-Main', 'main-card':'Main Card', prelim:'Prelim' }[boutType];
+
+      const wrapper = document.createElement('div');
+      wrapper.className = `fight-card ${boutType === 'main' || boutType === 'co-main' ? boutType : ''}`;
+      wrapper.dataset.id = fightId;
+
+      wrapper.innerHTML = `
+        <div class="fight-card-inner">
+
+          <div>
+            <div class="fight-card-bout-label ${boutType === 'main' ? 'main' : boutType === 'co-main' ? 'co-main' : ''}">${boutLabel}</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.1em;color:var(--grey);margin-top:2px;">${wc}</div>
+          </div>
+
+          <div class="fighter-info">
+            <div class="fighter-name-card">${nameA}</div>
+            <div class="fighter-record-card" id="${fightId}-recA">—</div>
+            <div class="fighter-prob-mini">
+              <div class="fighter-prob-fill-left" id="${fightId}-barA" style="width:50%"></div>
+            </div>
+            <div class="fighter-win-pct cyan" id="${fightId}-pctA">—</div>
+          </div>
+
+          <div class="fight-vs-col">
+            <div class="fight-vs-text">VS</div>
+            <div class="fight-weight-badge">${wc.split(' ').map(w=>w[0]).join('')}</div>
+            <div class="fight-expand-btn">+</div>
+          </div>
+
+          <div class="fighter-info right">
+            <div class="fighter-name-card">${nameB}</div>
+            <div class="fighter-record-card" id="${fightId}-recB">—</div>
+            <div class="fighter-prob-mini">
+              <div class="fighter-prob-fill-right" id="${fightId}-barB" style="width:50%"></div>
+            </div>
+            <div class="fighter-win-pct red" id="${fightId}-pctB">—</div>
+          </div>
+
+          <div class="pred-status-col">
+            <span class="pred-badge loading" id="${fightId}-badge">Predicting…</span>
+          </div>
+
+        </div>
+        <div class="fight-breakdown" id="bd-${fightId}">
+          <div class="breakdown-inner" style="text-align:center;color:var(--grey);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.15em;font-size:0.8rem;">
+            Running Bayesian model…
+          </div>
+        </div>
+      `;
+
+      wrapper.querySelector('.fight-card-inner').addEventListener('click', () => toggleFight(fightId, wrapper));
+
+      // Fire prediction immediately — non-blocking
+      runPrediction(fightId, nameA, nameB, wc);
+
+      return wrapper;
+    }
+
+    /* ══════════════════════════════════════════════
+        RUN PREDICTION  →  POST /api/predict
+    ══════════════════════════════════════════════ */
+    async function runPrediction(fightId, nameA, nameB, wc) {
+      // Use cache if available
+      const cacheKey = `${nameA}|${nameB}`;
+      if (predCache[cacheKey]) {
+        applyToCard(fightId, predCache[cacheKey], nameA, nameB);
+        return;
+      }
+
+      try {
+        const res  = await fetch('/api/predict', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ fighter_a: nameA, fighter_b: nameB, weight_class: wc }),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        predCache[cacheKey] = data;
+        applyToCard(fightId, data, nameA, nameB);
+
+        // Pre-fetch fighter stats in background
+        prefetchStats(nameA);
+        prefetchStats(nameB);
+
+      } catch (err) {
+        const badge = document.getElementById(`${fightId}-badge`);
+        if (badge) { badge.textContent = 'Not in model'; badge.className = 'pred-badge error'; }
+        // Still build breakdown shell so expansion works
+        buildBreakdown(fightId, null, nameA, nameB);
+      }
+    }
+
+    /* ══════════════════════════════════════════════
+       APPLY PREDICTION RESULTS TO CARD UI
+    ══════════════════════════════════════════════ */
+    function applyToCard(fightId, d, nameA, nameB) {
+      const $ = id => document.getElementById(id);
+      const setTxt = (id, v) => { const e=$(`${fightId}-${id}`); if(e) e.textContent=v; };
+      const setW   = (id, w) => { const e=$(`${fightId}-${id}`); if(e) e.style.width=w+'%'; };
+
+      setTxt('recA', d.recordA || '—');
+      setTxt('recB', d.recordB || '—');
+      setTxt('pctA', d.winA + '%');
+      setTxt('pctB', d.winB + '%');
+      setW('barA', d.winA);
+      setW('barB', d.winB);
+
+      const badge = $(`${fightId}-badge`);
+      if (badge) { badge.textContent = 'Predicted ✓'; badge.className = 'pred-badge done'; }
+
+      buildBreakdown(fightId, d, nameA, nameB);
+    }
+
+    /* ══════════════════════════════════════════════
+       BUILD BREAKDOWN PANEL HTML
+    ══════════════════════════════════════════════ */
+    function buildBreakdown(fightId, d, nameA, nameB) {
+      const container = document.getElementById(`bd-${fightId}`);
+      if (!container) return;
+      const shortA = nameA.split(' ').pop().toUpperCase();
+      const shortB = nameB.split(' ').pop().toUpperCase();
+
+      if (!d) {
+        container.innerHTML = `
+          <div class="breakdown-inner" style="text-align:center;padding:2rem;color:var(--grey);font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;letter-spacing:0.1em;">
+            ⚠ One or both fighters were not found in the model's training data.<br>
+            <span style="color:rgba(255,255,255,0.3);font-size:0.75rem;">Add them to your dataset and retrain, or check the exact name spelling.</span>
+          </div>`;
+        return;
+      }
+
+      const rounds = 5;
+      const rLabels = ['R1','R2','R3','R4','R5'];
+
+      // ── Tab 1: Overview
+      const tab1 = `
+        <div class="breakdown-panel active" id="t-ov-${fightId}">
+          <div class="overview-grid-bd">
+            <div class="method-group">
+              <div class="method-group-title cyan">${shortA} — Win Methods</div>
+              ${mkBars([{n:'KO/WIN',p:d.koA,c:'cyan'},{n:'SUB/WIN',p:d.subA,c:'cyan'},{n:'DEC/WIN',p:d.decA,c:'cyan'}])}
+            </div>
+            <div class="prob-center">
+              <div class="prob-center-title">Win Probability</div>
+              <div>
+                <div class="prob-main-names"><span class="pmn left">${shortA}</span><span class="pmn right">${shortB}</span></div>
+                <div class="prob-main-bar">
+                  <div class="pmb-left  bd-bar" style="width:0%" data-target="${d.winA}"></div>
+                  <div class="pmb-right bd-bar" style="width:0%" data-target="${d.winB}"></div>
+                </div>
+                <div class="prob-main-pcts"><span class="pmp left">${d.winA}%</span><span class="pmp right">${d.winB}%</span></div>
+              </div>
+
+
+              
+            </div>
+            <div class="method-group">
+              <div class="method-group-title red">${shortB} — Win Methods</div>
+              ${mkBars([{n:'KO/WIN',p:d.koB,c:'red'},{n:'SUB/WIN',p:d.subB,c:'red'},{n:'DEC/WIN',p:d.decB,c:'red'}])}
+            </div>
+          </div>
+        </div>`;
+
+      // ── Tab 2: Fighter Stats (loaded lazily on tab click)
+      const tab2 = `
+        <div class="breakdown-panel" id="t-st-${fightId}" data-loaded="false" data-fa="${nameA}" data-fb="${nameB}">
+          <div style="text-align:center;padding:2rem;color:var(--grey);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.12em;font-size:0.8rem;">
+            Click the "Fighter Stats" tab to load…
+          </div>
+        </div>`;
+
+      // ── Tab 3: Round Heatmap
+      const tab3 = `
+        <div class="breakdown-panel" id="t-hm-${fightId}">
+          <div class="heatmap-title">Round-by-Round Finishing Probability — Darker Cell = Higher Probability</div>
+          <div class="heatmap-fighter-label cyan">${nameA}</div>
+          <div class="heatmap-col-labels">${rLabels.map(r=>`<div class="heatmap-col-label">${r}</div>`).join('')}</div>
+          ${mkHeatRow('KO/TKO',    d.koRoundsA  || [], true,  rounds)}
+          ${mkHeatRow('Submission',d.subRoundsA || [], true,  rounds)}
+          <div class="heatmap-divider"></div>
+          <div class="heatmap-fighter-label red">${nameB}</div>
+          <div class="heatmap-col-labels">${rLabels.map(r=>`<div class="heatmap-col-label">${r}</div>`).join('')}</div>
+          ${mkHeatRow('KO/TKO',    d.koRoundsB  || [], false, rounds)}
+          ${mkHeatRow('Submission',d.subRoundsB || [], false, rounds)}
+        </div>`;
+
+      container.innerHTML = `
+        <div class="breakdown-inner">
+          <div class="breakdown-tabs" id="tabs-${fightId}">
+            <button class="breakdown-tab active" data-fid="${fightId}" data-tab="ov">Overview</button>
+            <button class="breakdown-tab"        data-fid="${fightId}" data-tab="st">Fighter Stats</button>
+            <button class="breakdown-tab"        data-fid="${fightId}" data-tab="hm">Round Heatmap</button>
+          </div>
+          ${tab1}${tab2}${tab3}
+        </div>`;
+    }
+
+    /* ══════════════════════════════════════════════
+       HTML BUILDERS
+    ══════════════════════════════════════════════ */
+    function mkBars(methods) {
+      return methods.map(m => `
+        <div class="method-bar-row">
+          <div class="method-bar-label-row">
+            <span class="method-bar-name">${m.n}</span>
+            <span class="method-bar-pct">${m.p}%</span>
+          </div>
+          <div class="method-bar-track">
+            <div class="method-bar-fill ${m.c} bd-bar" style="width:0%" data-target="${m.p}"></div>
+          </div>
+        </div>`).join('');
+    }
+
+    function mkHeatRow(label, vals, isCyan, rounds) {
+      const maxV = Math.max(...vals, 1);
+      const cells = Array.from({length:rounds},(_,i) => {
+        const v   = vals[i] ?? 0;
+        const int = maxV > 0 ? v/maxV : 0;
+        const bg  = isCyan
+          ? `rgba(0,${Math.round(140+int*115)},${Math.round(180+int*75)},${(0.1+int*0.6).toFixed(2)})`
+          : `rgba(${Math.round(140+int*115)},${Math.round(int*30)},${Math.round(int*20)},${(0.1+int*0.6).toFixed(2)})`;
+        return `<div class="heatmap-cell" style="background:${bg}" title="R${i+1}: ${v}%">${v}%</div>`;
+      }).join('');
+      return `<div class="heatmap-row"><div class="heatmap-row-label">${label}</div>${cells}</div>`;
+    }
+
+    /* ══════════════════════════════════════════════
+       TOGGLE EXPAND
+    ══════════════════════════════════════════════ */
+    function toggleFight(fightId, cardEl) {
+      const bd     = document.getElementById(`bd-${fightId}`);
+      const isOpen = bd.classList.contains('open');
+      document.querySelectorAll('.fight-breakdown.open').forEach(e => e.classList.remove('open'));
+      document.querySelectorAll('.fight-card.expanded').forEach(e => e.classList.remove('expanded'));
+      if (!isOpen) {
+        bd.classList.add('open');
+        cardEl.classList.add('expanded');
+        setTimeout(() => animateBars(bd), 100);
+        setTimeout(() => cardEl.scrollIntoView({ behavior:'smooth', block:'nearest' }), 60);
+      }
+    }
+
+    /* ══════════════════════════════════════════════
+       TAB SWITCHING (event delegation)
+    ══════════════════════════════════════════════ */
+    document.addEventListener('click', async e => {
+      const btn = e.target.closest('.breakdown-tab');
+      if (!btn) return;
+      e.stopPropagation();
+
+      const fid  = btn.dataset.fid;
+      const tab  = btn.dataset.tab;
+      document.getElementById(`tabs-${fid}`).querySelectorAll('.breakdown-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const bd = document.getElementById(`bd-${fid}`);
+      bd.querySelectorAll('.breakdown-panel').forEach(p => p.classList.remove('active'));
+
+      const panel = document.getElementById(`t-${tab}-${fid}`);
+      if (!panel) return;
+      panel.classList.add('active');
+
+      if (tab === 'st') await loadStatsPanel(fid);
+      setTimeout(() => animateBars(bd), 80);
+    });
+
+    /* ══════════════════════════════════════════════
+       STATS PANEL — lazy loaded on tab click
+       → GET /api/fighter_stats?name=…
+    ══════════════════════════════════════════════ */
+    async function prefetchStats(name) {
+      if (statsCache[name]) return;
+      try {
+        const res  = await fetch(`/api/fighter_stats?name=${encodeURIComponent(name)}`);
+        const data = await res.json();
+        if (!data.error) statsCache[name] = data;
+      } catch {}
+    }
+
+    async function loadStatsPanel(fid) {
+      const panel = document.getElementById(`t-st-${fid}`);
+      if (!panel || panel.dataset.loaded === 'true') return;
+      panel.dataset.loaded = 'true';
+
+      const nameA = panel.dataset.fa;
+      const nameB = panel.dataset.fb;
+      panel.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--cyan);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.15em;font-size:0.8rem;animation:pulse 1s ease infinite;">Loading fighter stats…</div>`;
+
+      const [sA, sB] = await Promise.all([
+        statsCache[nameA] ? Promise.resolve(statsCache[nameA]) : prefetchStats(nameA).then(() => statsCache[nameA]),
+        statsCache[nameB] ? Promise.resolve(statsCache[nameB]) : prefetchStats(nameB).then(() => statsCache[nameB]),
+      ]);
+
+      if (!sA && !sB) {
+        panel.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--red);font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;">Fighter stats not available — fighter may not be in the fighters CSV.</div>`;
+        return;
+      }
+
+      const mkStatRows = (stats, color) => stats.map(s => `
+        <div class="stat-row">
+          <div class="stat-row-header">
+            <span class="stat-row-label">${s.label}</span>
+            <span class="stat-row-val">${s.val}</span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill ${color} bd-bar" style="width:0%" data-target="${s.pct}"></div>
+          </div>
+        </div>`).join('');
+
+      const buildRows = (s, color) => s ? mkStatRows([
+        { label:'KO Rate',   val: s.ko_rate  + '%',                           pct: Math.min(100, s.ko_rate) },
+        { label:'Sub Rate',  val: s.sub_rate + '%',                           pct: Math.min(100, s.sub_rate) },
+        { label:'Dec Rate',  val: s.dec_rate != null ? s.dec_rate + '%' : '—', pct: Math.min(100, s.dec_rate || 0) },
+        // Reach: CSV is inches converted to cm (range ~147–213 cm). Map 147–213 → 5–100%
+        { label:'Reach',     val: s.reach  ? s.reach  + ' cm' : '—',         pct: s.reach  ? Math.min(100, Math.max(5, (s.reach  - 147) / 66 * 95 + 5)) : 5 },
+        // Height: already in cm (range ~140–226 cm). Map 140–220 → 5–100%
+        { label:'Height',    val: s.height ? s.height + ' cm' : '—',         pct: s.height ? Math.min(100, Math.max(5, (s.height - 140) / 80 * 95 + 5)) : 5 },
+        { label:'Age',       val: s.age ? Math.round(s.age) + ' yrs' : '—',  pct: s.age    ? Math.min(100, Math.max(0, (40 - s.age) / 20 * 100)) : 50 },
+      ], color) : `<div style="color:var(--grey);font-size:0.8rem;padding:1rem 0;font-family:'Barlow Condensed',sans-serif;">No data available.</div>`;
+
+      panel.innerHTML = `
+        <div class="stats-comparison-grid">
+          <div class="stats-col">
+            <div class="stats-col-header cyan">${nameA} <span style="color:var(--grey);font-size:0.7em;">${sA ? sA.record : ''}</span></div>
+            ${buildRows(sA, 'cyan')}
+          </div>
+          <div class="stats-divider-line"></div>
+          <div class="stats-col">
+            <div class="stats-col-header red">${nameB} <span style="color:var(--grey);font-size:0.7em;">${sB ? sB.record : ''}</span></div>
+            ${buildRows(sB, 'red')}
+          </div>
+        </div>`;
+
+      setTimeout(() => animateBars(panel), 80);
+    }
+
+    /* ══════════════════════════════════════════════
+       ANIMATE ALL bd-bar ELEMENTS IN A CONTAINER
+    ══════════════════════════════════════════════ */
+    function animateBars(container) {
+      if (!container) return;
+      container.querySelectorAll('.bd-bar').forEach(bar => {
+        bar.style.width = (parseFloat(bar.dataset.target) || 0) + '%';
+      });
+    }
+
+  })();
+  </script>
+</body>
+</html>

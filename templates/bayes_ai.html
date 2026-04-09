@@ -1,0 +1,1163 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Bayes AI — MMA Fight Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bayes_style.css') }}">
+
+    <style>
+      /* ── Division group labels ── */
+      .weight-group-label {
+        width: 100%;
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        color: #00e5ff;
+        padding: 0.25rem 0 0.6rem 0.1rem;
+        margin-top: 0.5rem;
+        border-bottom: 1px solid rgba(0,229,255,0.15);
+        margin-bottom: 0.8rem;
+      }
+      .weight-group-label.women {
+        color: #ff6b9d;
+        border-bottom-color: rgba(255,107,157,0.18);
+        margin-top: 1.8rem;
+      }
+      .weight-cards-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        width: 100%;
+      }
+
+      /* ── Fighter Search Box ── */
+      .fighter-search-wrap {
+        position: relative;
+        width: 100%;
+      }
+      .fighter-search-box {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(145deg, #1a1a1a, #222222);
+        border: 1.5px solid rgba(255,255,255,0.08);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        transition: border-color 0.25s, box-shadow 0.25s;
+        cursor: text;
+      }
+      .fighter-search-wrap.open .fighter-search-box,
+      .fighter-search-box:focus-within {
+        border-color: #00e5ff;
+        box-shadow: 0 0 18px rgba(0,229,255,0.2);
+      }
+      #searchWrapB.open .fighter-search-box,
+      #searchBoxB:focus-within {
+        border-color: #e8001d;
+        box-shadow: 0 0 18px rgba(232,0,29,0.2);
+      }
+      .search-icon {
+        font-size: 1.15rem;
+        color: #888;
+        flex-shrink: 0;
+        transition: color 0.2s;
+        line-height: 1;
+        transform: scaleX(-1);
+        display: inline-block;
+      }
+      .fighter-search-box:focus-within .search-icon { color: #00e5ff; }
+      #searchBoxB:focus-within .search-icon { color: #e8001d; }
+      .fighter-search-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #f0f0f0;
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        cursor: auto;
+        min-width: 0;
+      }
+      .fighter-search-input::placeholder { color: rgba(136,136,136,0.6); font-weight: 400; }
+      .search-clear {
+        font-size: 0.75rem;
+        color: #888;
+        cursor: pointer;
+        flex-shrink: 0;
+        width: 18px; height: 18px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 50%;
+        transition: color 0.2s, background 0.2s;
+      }
+      .search-clear:hover { color: #f0f0f0; background: rgba(255,255,255,0.1); }
+
+      .fighter-dropdown-list {
+        display: none;
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0; right: 0;
+        background: #161616;
+        border: 1.5px solid rgba(0,229,255,0.25);
+        border-radius: 8px;
+        max-height: 260px;
+        overflow-y: auto;
+        z-index: 200;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0,229,255,0.2) transparent;
+      }
+      #searchWrapB .fighter-dropdown-list {
+        border-color: rgba(232,0,29,0.25);
+      }
+      .fighter-dropdown-list.open { display: block; animation: fadeSlideIn 0.18s ease; }
+      .fighter-dropdown-list::-webkit-scrollbar { width: 4px; }
+      .fighter-dropdown-list::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.2); border-radius: 2px; }
+      #searchWrapB .fighter-dropdown-list::-webkit-scrollbar-thumb { background: rgba(232,0,29,0.2); }
+
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.65rem 1rem;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+        transition: background 0.15s;
+        gap: 0.8rem;
+      }
+      .dropdown-item:last-child { border-bottom: none; }
+      .dropdown-item:hover,
+      .dropdown-item.highlighted { background: rgba(0,229,255,0.07); }
+      #searchWrapB .dropdown-item:hover,
+      #searchWrapB .dropdown-item.highlighted { background: rgba(232,0,29,0.07); }
+      .dropdown-item.disabled {
+        opacity: 0.3;
+        pointer-events: none;
+        cursor: default;
+      }
+      .dropdown-item-name {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: #f0f0f0;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .dropdown-item-name mark {
+        background: transparent;
+        color: #00e5ff;
+        font-weight: 700;
+      }
+      #searchWrapB .dropdown-item-name mark { color: #ff2a45; }
+      .dropdown-item-fights {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        color: #888;
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+      .dropdown-empty {
+        padding: 1.2rem 1rem;
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 0.9rem;
+        color: #888;
+        text-align: center;
+        letter-spacing: 0.08em;
+      }
+      .fighter-search-wrap.has-value .fighter-search-box {
+        border-color: rgba(0,229,255,0.35);
+      }
+      #searchWrapB.has-value .fighter-search-box {
+        border-color: rgba(232,0,29,0.35);
+      }
+    </style>
+</head>
+<body>
+
+  <!-- CUSTOM CURSOR -->
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="loader-text">BAYES <span>A.I</span></div>
+    <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="site-header" id="header">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='img/UFC-icon.png') }}" alt="UFC" onerror="this.style.display='none'">
+    </div>
+    <nav class="main-nav">
+      <a href="/">Home</a>
+      <a href="/how_it_works">How It Works</a>
+      <a href="/analyze">Analyze</a>
+      <a href="/bayes_ai" class="nav-cta" >Bayes AI</a>
+    </nav>
+    <div class="hamburger" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </header>
+
+  <nav class="mobile-nav" id="mobileNav">
+    <a href="/">Home</a>
+    <a href="/how_it_works">How It Works</a>
+    <a href="/analyze">Analyze</a>
+    <a href="/bayes_ai" class="nav-cta">Bayes AI</a>
+  </nav>
+
+  <main>
+
+    <!-- PAGE HERO -->
+    <section class="page-hero">
+      <div class="page-hero-bg"></div>
+      <canvas id="pageCanvas"></canvas>
+      <div class="page-hero-line"></div>
+      <div class="page-hero-inner">
+        <p class="page-eyebrow">Probabilistic Fight Forecasting</p>
+        <h1>Bayes <span>A.I</span><br>Prediction</h1>
+        <p class="page-hero-sub">Select a weight class and two fighters to generate a full Bayesian probability breakdown — KO, submission, decision, and round-by-round outcomes.</p>
+      </div>
+    </section>
+
+    <!-- TICKER -->
+    <div class="ticker-wrap" aria-hidden="true">
+      <div class="ticker-track">
+        <div class="ticker-item">KO Probability</div>
+        <div class="ticker-item">Submission Odds</div>
+        <div class="ticker-item">Decision Probability</div>
+        <div class="ticker-item">Round-by-Round Forecast</div>
+        <div class="ticker-item">Bayesian Inference</div>
+        <div class="ticker-item">Fighter Analytics</div>
+        <div class="ticker-item">Method of Victory</div>
+        <div class="ticker-item">Win Probability Engine</div>
+        <div class="ticker-item">KO Probability</div>
+        <div class="ticker-item">Submission Odds</div>
+        <div class="ticker-item">Decision Probability</div>
+        <div class="ticker-item">Round-by-Round Forecast</div>
+        <div class="ticker-item">Bayesian Inference</div>
+        <div class="ticker-item">Fighter Analytics</div>
+        <div class="ticker-item">Method of Victory</div>
+        <div class="ticker-item">Win Probability Engine</div>
+      </div>
+    </div>
+
+    <!-- SELECTOR SECTION -->
+    <section class="selector-section" id="selectorSection">
+
+      <div class="selector-header">
+        <p class="section-label">Configure Your Matchup</p>
+        <h2 class="section-title">Fight Selector</h2>
+      </div>
+
+      <!-- STEP INDICATORS -->
+      <div class="selector-steps">
+        <div class="step-block active" id="step1Block">
+          <div class="step-num">01</div>
+          <div class="step-label">Weight Class</div>
+        </div>
+        <div class="step-block" id="step2Block">
+          <div class="step-num">02</div>
+          <div class="step-label">Select Fighters</div>
+        </div>
+        <div class="step-block" id="step3Block">
+          <div class="step-num">03</div>
+          <div class="step-label">View Prediction</div>
+        </div>
+      </div>
+
+      <!-- PANELS -->
+      <div class="selector-panels">
+
+        <!-- PANEL 1: Weight Class -->
+        <div class="panel active" id="panel1">
+          <div class="weight-grid" id="weightGrid">
+            <!-- Populated by JS via /api/fighters -->
+          </div>
+        </div>
+
+        <!-- PANEL 2: Fighter Selection -->
+        <div class="panel" id="panel2">
+          <div class="fighter-selection-wrap">
+
+            <div class="fighter-slot">
+              <div class="fighter-slot-label left">◆ Fighter A</div>
+              <div class="fighter-search-wrap" id="searchWrapA">
+                <div class="fighter-search-box" id="searchBoxA">
+                  <span class="search-icon">⌕</span>
+                  <input type="text" class="fighter-search-input" id="searchInputA" placeholder="Search fighter…" autocomplete="off" spellcheck="false">
+                  <span class="search-clear" id="searchClearA" style="display:none">✕</span>
+                </div>
+                <div class="fighter-dropdown-list" id="dropdownA"></div>
+              </div>
+              <div class="fighter-card-preview" id="fighterAPreview">
+                <div class="fcp-name" id="fcpAName">—</div>
+                <div class="fcp-record" id="fcpARecord">—</div>
+                <div class="fcp-stats" id="fcpAStats"></div>
+              </div>
+            </div>
+
+            <div class="vs-divider">
+              <div class="vs-line"></div>
+              <div class="vs-text">VS</div>
+              <div class="vs-line"></div>
+            </div>
+
+            <div class="fighter-slot">
+              <div class="fighter-slot-label right">Fighter B ◆</div>
+              <div class="fighter-search-wrap" id="searchWrapB">
+                <div class="fighter-search-box" id="searchBoxB">
+                  <span class="search-icon">⌕</span>
+                  <input type="text" class="fighter-search-input" id="searchInputB" placeholder="Search fighter…" autocomplete="off" spellcheck="false">
+                  <span class="search-clear" id="searchClearB" style="display:none">✕</span>
+                </div>
+                <div class="fighter-dropdown-list" id="dropdownB"></div>
+              </div>
+              <div class="fighter-card-preview" id="fighterBPreview">
+                <div class="fcp-name" id="fcpBName">—</div>
+                <div class="fcp-record" id="fcpBRecord">—</div>
+                <div class="fcp-stats" id="fcpBStats"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="predict-btn-wrap">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.8rem;">
+              <button class="btn-predict" id="predictBtn" disabled>Generate Prediction →</button>
+              <button class="btn-secondary" id="backBtn">← Change Weight Class</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RESULTS SECTION -->
+    <section id="resultsSection">
+
+      <div class="results-header">
+        <div class="results-weight-tag" id="resultsWeightTag">—</div>
+        <div class="results-title" id="resultsTitle">Fighter A vs Fighter B</div>
+        <div class="results-subtitle">BAYESIAN PROBABILITY ANALYSIS · AI-GENERATED FORECAST</div>
+      </div>
+
+      <div class="prediction-display">
+
+        <!-- SVG DEFS for gradients -->
+        <svg width="0" height="0" style="position:absolute;">
+          <defs>
+            <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#00b8d4"/>
+              <stop offset="100%" style="stop-color:#00e5ff"/>
+            </linearGradient>
+            <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#c00015"/>
+              <stop offset="100%" style="stop-color:#ff2a45"/>
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <!-- WIN % RINGS -->
+        <div class="pred-top-row">
+          <div class="pred-fighter-name left" id="resNameA">FIGHTER A</div>
+
+          <div class="pred-win-circle">
+            <div class="win-ring-wrap" id="ringWrapA">
+              <div class="win-ring-glow left-glow"></div>
+              <svg class="win-ring-svg" viewBox="0 0 220 220">
+                <circle class="win-ring-track" cx="110" cy="110" r="96"/>
+                <circle class="win-ring-fill left-ring" id="ringFillA" cx="110" cy="110" r="96"/>
+              </svg>
+              <div class="win-ring-content">
+                <span class="win-ring-label cyan">WIN</span>
+                <span class="win-ring-pct" id="ringPctA">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pred-vs-col">
+            <div class="pred-vs-text">VS</div>
+          </div>
+
+          <div class="pred-win-circle">
+            <div class="win-ring-wrap" id="ringWrapB">
+              <div class="win-ring-glow right-glow"></div>
+              <svg class="win-ring-svg" viewBox="0 0 220 220">
+                <circle class="win-ring-track" cx="110" cy="110" r="96"/>
+                <circle class="win-ring-fill right-ring" id="ringFillB" cx="110" cy="110" r="96"/>
+              </svg>
+              <div class="win-ring-content">
+                <span class="win-ring-label red">WIN</span>
+                <span class="win-ring-pct" id="ringPctB">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pred-fighter-name right" id="resNameB">FIGHTER B</div>
+        </div>
+
+        <!-- PROBABILITY BAR -->
+        <div class="prob-bar-section">
+          <div class="prob-bar-title">Overall Win Probability</div>
+          <div class="prob-bar-row">
+            <span class="prob-bar-name left" id="probNameA">Fighter A</span>
+            <span class="prob-bar-pct left" id="probPctA">—</span>
+            <div class="prob-bar-track">
+              <div class="prob-bar-fill-left" id="probBarA" style="width:0%"></div>
+              <div class="prob-bar-fill-right" id="probBarB" style="width:0%"></div>
+            </div>
+            <span class="prob-bar-pct right" id="probPctB">—</span>
+            <span class="prob-bar-name right" id="probNameB">Fighter B</span>
+          </div>
+        </div>
+
+        <!-- METHODS + ROUNDS -->
+        <div class="method-row">
+
+          <!-- Fighter A methods -->
+          <div class="method-col left" id="methodColA">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Round-by-round center -->
+          <div class="round-col" id="roundCol">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Fighter B methods -->
+          <div class="method-col right" id="methodColB">
+            <!-- Populated by JS -->
+          </div>
+
+        </div>
+
+        <div class="results-reset-wrap">
+          <button class="btn-secondary" id="resetBtn">← New Prediction</button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <p>Advanced Bayesian AI fight prediction for MMA. Built for research, analytics, and sports intelligence.</p>
+      </div>
+      <div class="footer-nav-grid">
+        <div class="footer-nav-col">
+          <h4>Navigation</h4>
+          <a href="/">Home</a>
+          <a href="/how_it_works">How It Works</a>
+          <a href="/bayes_ai">Bayes AI</a>
+          <a href="/analyze">Analyze</a>
+        </div>
+        <div class="footer-nav-col">
+          <h4>Features</h4>
+          <a href="#">Fight Prediction</a>
+          <a href="#">Fighter Stats</a>
+          <a href="#">Event Analysis</a>
+          <a href="#">Fantasy Scoring</a>
+        </div>
+        <div class="footer-nav-col">
+          <h4>Research</h4>
+          <a href="#">Methodology</a>
+          <a href="#">Data Sources</a>
+          <a href="#">Model Accuracy</a>
+          <a href="#">Publications</a>
+        </div>
+      </div>
+    </div>
+    <p class="disclaimer">
+      <strong>Disclaimer:</strong> The content and predictive models presented on this website are developed for academic and research purposes only.
+      The information, visualisations, and analytical results are not intended for commercial use, financial decision-making, or wagering of any kind.
+      All outcomes generated by the artificial intelligence system are probabilistic estimates based on available data and should not be interpreted
+      as guaranteed results. The developers assume no responsibility for any actions, interpretations, or decisions made based on the information provided herein.
+    </p>
+    <div class="footer-bottom">
+      <p>© 2025 MMA <span class="red-dot">●</span> UFC Prediction</p>
+      <p>Research &amp; Development Project</p>
+    </div>
+  </footer>
+
+  <button id="backTop" aria-label="Back to top">↑</button>
+
+  <script>
+  (() => {
+    'use strict';
+
+    /* ════════════════════════════════════════════
+       STATE
+    ════════════════════════════════════════════ */
+    let fightersData      = {};   // { "Lightweight": ["Fighter A", ...], ... }
+    let fighterStatsCache = {};   // { "Fighter Name": { record, stats, ... } }
+    let selectedWeightClass = null;
+    let fighterA = null;
+    let fighterB = null;
+
+    /* ════════════════════════════════════════════
+       WEIGHT CLASS META  (limits, gender labels)
+    ════════════════════════════════════════════ */
+    const WEIGHT_META = {
+      "Lightweight":         { limit: "155 lbs" },
+      "Welterweight":        { limit: "170 lbs" },
+      "Middleweight":        { limit: "185 lbs" },
+      "Light Heavyweight":   { limit: "205 lbs" },
+      "Heavyweight":         { limit: "265 lbs" },
+      "Featherweight":       { limit: "145 lbs" },
+      "Bantamweight":        { limit: "135 lbs" },
+      "Flyweight":           { limit: "125 lbs" },
+      "Women's Strawweight": { limit: "115 lbs", gender: "Women's" },
+      "Women's Flyweight":   { limit: "125 lbs", gender: "Women's" },
+      "Women's Bantamweight":{ limit: "135 lbs", gender: "Women's" },
+    };
+
+    /* ════════════════════════════════════════════
+       LOADER
+    ════════════════════════════════════════════ */
+    window.addEventListener('load', () => {
+      // Start loading fighters from API immediately
+      loadFighters();
+      setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1400);
+    });
+
+    /* ════════════════════════════════════════════
+       CUSTOM CURSOR
+    ════════════════════════════════════════════ */
+    const cur = document.getElementById('cursor');
+    const curRing = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    function animCursor() {
+      cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+      rx += (mx - rx) * 0.14; ry += (my - ry) * 0.14;
+      curRing.style.left = rx + 'px'; curRing.style.top = ry + 'px';
+      requestAnimationFrame(animCursor);
+    }
+    animCursor();
+
+    /* ════════════════════════════════════════════
+       HEADER SCROLL
+    ════════════════════════════════════════════ */
+    const header = document.getElementById('header');
+    const backTop = document.getElementById('backTop');
+    window.addEventListener('scroll', () => {
+      const s = window.scrollY;
+      header.classList.toggle('scrolled', s > 60);
+      backTop.classList.toggle('show', s > 400);
+    }, { passive: true });
+    backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    /* ════════════════════════════════════════════
+       HAMBURGER
+    ════════════════════════════════════════════ */
+    const ham = document.getElementById('hamburger');
+    const mNav = document.getElementById('mobileNav');
+    ham.addEventListener('click', () => {
+      ham.classList.toggle('active');
+      mNav.classList.toggle('open');
+    });
+
+    /* ════════════════════════════════════════════
+       PAGE CANVAS PARTICLES
+    ════════════════════════════════════════════ */
+    const canvas = document.getElementById('pageCanvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resizeCanvas() {
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.size = Math.random() * 1.2 + 0.3;
+        this.speedX = (Math.random() - 0.5) * 0.35;
+        this.speedY = (Math.random() - 0.5) * 0.35;
+        this.alpha = Math.random() * 0.4 + 0.1;
+        this.color = Math.random() < 0.3 ? '#00e5ff' : (Math.random() < 0.15 ? '#e8001d' : '#ffffff');
+      }
+      update() {
+        this.x += this.speedX; this.y += this.speedY;
+        if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = this.alpha;
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 80; i++) particles.push(new Particle());
+    function animParticles() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => { p.update(); p.draw(); });
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(animParticles);
+    }
+    animParticles();
+
+    /* ════════════════════════════════════════════
+       SCROLL REVEALS
+    ════════════════════════════════════════════ */
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    /* ════════════════════════════════════════════
+       STEP MANAGEMENT
+    ════════════════════════════════════════════ */
+    function setStep(step) {
+      const blocks = [
+        document.getElementById('step1Block'),
+        document.getElementById('step2Block'),
+        document.getElementById('step3Block')
+      ];
+      const panels = [
+        document.getElementById('panel1'),
+        document.getElementById('panel2')
+      ];
+      blocks.forEach((b, i) => {
+        b.classList.remove('active', 'done');
+        if (i + 1 < step)  b.classList.add('done');
+        if (i + 1 === step) b.classList.add('active');
+      });
+      panels.forEach((p, i) => {
+        p.classList.remove('active');
+        if (i + 1 === step) p.classList.add('active');
+      });
+    }
+
+    /* ════════════════════════════════════════════
+       API: LOAD ALL FIGHTERS
+    ════════════════════════════════════════════ */
+    async function loadFighters() {
+      const weightGrid = document.getElementById('weightGrid');
+      weightGrid.innerHTML = '<div style="color:#8b9ab0;padding:2rem;text-align:center;">Loading fighters…</div>';
+
+      try {
+        const res  = await fetch('/api/fighters');
+        const data = await res.json();
+
+        if (data.error) throw new Error(data.error);
+        fightersData = data;
+        buildWeightClassCards();
+
+      } catch (err) {
+        weightGrid.innerHTML = `<div style="color:#ff2a45;padding:2rem;text-align:center;">
+          Failed to load fighters: ${err.message}
+        </div>`;
+        console.error('loadFighters error:', err);
+      }
+    }
+
+    /* ════════════════════════════════════════════
+       WEIGHT CLASS CARDS
+    ════════════════════════════════════════════ */
+    
+    function buildWeightClassCards() {
+        const weightGrid = document.getElementById('weightGrid');
+        weightGrid.innerHTML = '';
+
+        weightGrid.style.display = "block";
+        weightGrid.style.paddingLeft = "85px";  
+
+        const male = [];
+        const female = [];
+
+        Object.keys(fightersData).forEach(name => {
+            if (WEIGHT_META[name]?.gender) female.push(name);
+            else male.push(name);
+        });
+
+        function createCard(name) {
+            const meta = WEIGHT_META[name] || { limit: '' };
+
+            const card = document.createElement('div');
+            card.className = 'weight-card';
+
+            // 🔹 Force same card size
+            card.style.width = "220px";
+            card.style.flex = "0 0 220px";
+
+            card.innerHTML = `
+            <div class="weight-card-name">${name}</div>
+            <div class="weight-card-limit">${meta.limit}</div>
+            ${meta.gender ? `<div class="weight-card-gender">${meta.gender}</div>` : ''}
+            `;
+
+            card.addEventListener('click', () => selectWeightClass(name, card));
+            return card;
+        }
+
+        function buildSection(title, list, isWomen) {
+          const label = document.createElement('div');
+          label.className = 'weight-group-label' + (isWomen ? ' women' : '');
+          label.textContent = title;
+          weightGrid.appendChild(label);
+
+          const row = document.createElement('div');
+          row.className = 'weight-cards-row';
+          list.forEach(name => row.appendChild(createCard(name)));
+          weightGrid.appendChild(row);
+        }
+
+        buildSection("MEN'S DIVISIONS", male, false);
+        if (female.length) buildSection("WOMEN'S DIVISIONS", female, true);
+
+        function selectWeightClass(name, cardEl) {
+          document.querySelectorAll('.weight-card').forEach(c => c.classList.remove('selected'));
+          cardEl.classList.add('selected');
+          selectedWeightClass = name;
+          setTimeout(() => {
+            populateFighterDropdowns(name);
+            setStep(2);
+          }, 280);
+        }
+    }
+    
+    
+    /* ════════════════════════════════════════════
+       FIGHTER SEARCH  — per-division, sorted by fights,
+       no-duplicate enforcement
+    ════════════════════════════════════════════ */
+
+    // Master list for current division: [{name, fights}]
+    let divisionRoster = [];
+
+    function populateFighterDropdowns(weightClass) {
+      const names = fightersData[weightClass] || [];
+
+      // Build roster with fight-count from cache (populated lazily)
+      // We sort by the number in the record string e.g. "18W-2L" → 20 fights
+      // The API returns record; we'll parse it when available, else sort alphabetically
+      divisionRoster = names.map(n => ({ name: n, fights: getFightCount(n) }));
+      // Sort descending by fights (most experienced first)
+      divisionRoster.sort((a, b) => b.fights - a.fights || a.name.localeCompare(b.name));
+
+      // Reset both sides
+      fighterA = null; fighterB = null;
+      resetSearchSide('A');
+      resetSearchSide('B');
+      updatePredictBtn();
+    }
+
+    function getFightCount(name) {
+      const cached = fighterStatsCache[name];
+      if (!cached) return 0;
+      // record like "18W-2L" → 18+2 = 20
+      const m = cached.record.match(/(\d+)W-(\d+)L/);
+      return m ? parseInt(m[1]) + parseInt(m[2]) : 0;
+    }
+
+    function resetSearchSide(side) {
+      const input = document.getElementById(`searchInput${side}`);
+      const clear = document.getElementById(`searchClear${side}`);
+      const wrap  = document.getElementById(`searchWrap${side}`);
+      const drop  = document.getElementById(`dropdown${side}`);
+      input.value = '';
+      clear.style.display = 'none';
+      wrap.classList.remove('open', 'has-value');
+      drop.classList.remove('open');
+      drop.innerHTML = '';
+      document.getElementById(`fighter${side}Preview`).classList.remove('visible');
+      document.getElementById(`fcp${side}Name`).textContent = '—';
+      document.getElementById(`fcp${side}Record`).textContent = '—';
+      document.getElementById(`fcp${side}Stats`).innerHTML = '';
+    }
+
+    function highlightMatch(text, query) {
+      if (!query) return text;
+      const idx = text.toLowerCase().indexOf(query.toLowerCase());
+      if (idx === -1) return text;
+      return text.slice(0, idx)
+           + '<mark>' + text.slice(idx, idx + query.length) + '</mark>'
+           + text.slice(idx + query.length);
+    }
+
+    function buildDropdown(side, query) {
+      const other   = side === 'A' ? fighterB : fighterA;
+      const drop    = document.getElementById(`dropdown${side}`);
+      const filtered = query
+        ? divisionRoster.filter(r => r.name.toLowerCase().includes(query.toLowerCase()))
+        : divisionRoster;
+
+      drop.innerHTML = '';
+      if (!filtered.length) {
+        drop.innerHTML = '<div class="dropdown-empty">No fighters found</div>';
+        drop.classList.add('open');
+        return;
+      }
+
+      filtered.forEach(({ name, fights }) => {
+        const item = document.createElement('div');
+        item.className = 'dropdown-item' + (name === other ? ' disabled' : '');
+        item.dataset.name = name;
+
+        const fightLabel = fights > 0 ? `${fights} fights` : '';
+        item.innerHTML = `
+          <span class="dropdown-item-name">${highlightMatch(name, query)}</span>
+          ${fightLabel ? `<span class="dropdown-item-fights">${fightLabel}</span>` : ''}
+        `;
+        item.addEventListener('mousedown', e => {
+          e.preventDefault(); // prevent blur before click
+          selectFighter(side, name);
+        });
+        drop.appendChild(item);
+      });
+      drop.classList.add('open');
+    }
+
+    function selectFighter(side, name) {
+      const input = document.getElementById(`searchInput${side}`);
+      const clear = document.getElementById(`searchClear${side}`);
+      const wrap  = document.getElementById(`searchWrap${side}`);
+      const drop  = document.getElementById(`dropdown${side}`);
+
+      input.value = name;
+      clear.style.display = 'flex';
+      wrap.classList.add('has-value');
+      wrap.classList.remove('open');
+      drop.classList.remove('open');
+
+      if (side === 'A') fighterA = name;
+      else              fighterB = name;
+
+      // Re-render the other side's open dropdown to grey-out this pick
+      const otherSide = side === 'A' ? 'B' : 'A';
+      const otherDrop = document.getElementById(`dropdown${otherSide}`);
+      if (otherDrop.classList.contains('open')) {
+        buildDropdown(otherSide, document.getElementById(`searchInput${otherSide}`).value);
+      }
+
+      showFighterPreview(side, name);
+      updatePredictBtn();
+    }
+
+    function setupSearchSide(side) {
+      const input = document.getElementById(`searchInput${side}`);
+      const clear = document.getElementById(`searchClear${side}`);
+      const wrap  = document.getElementById(`searchWrap${side}`);
+      const drop  = document.getElementById(`dropdown${side}`);
+
+      input.addEventListener('focus', () => {
+        wrap.classList.add('open');
+        buildDropdown(side, input.value);
+      });
+
+      input.addEventListener('input', () => {
+        const q = input.value;
+        clear.style.display = q ? 'flex' : 'none';
+        wrap.classList.add('open');
+        buildDropdown(side, q);
+        // If cleared, deselect
+        if (!q) {
+          if (side === 'A') fighterA = null;
+          else              fighterB = null;
+          wrap.classList.remove('has-value');
+          document.getElementById(`fighter${side}Preview`).classList.remove('visible');
+          updatePredictBtn();
+        }
+      });
+
+      input.addEventListener('blur', () => {
+        // Small delay so mousedown on item fires first
+        setTimeout(() => {
+          wrap.classList.remove('open');
+          drop.classList.remove('open');
+          // If input doesn't match a selected fighter, clear it
+          const currentSelection = side === 'A' ? fighterA : fighterB;
+          if (input.value !== currentSelection) {
+            input.value = currentSelection || '';
+            if (!currentSelection) {
+              clear.style.display = 'none';
+              wrap.classList.remove('has-value');
+            }
+          }
+        }, 150);
+      });
+
+      clear.addEventListener('click', () => {
+        input.value = '';
+        clear.style.display = 'none';
+        wrap.classList.remove('has-value', 'open');
+        drop.classList.remove('open');
+        if (side === 'A') fighterA = null;
+        else              fighterB = null;
+        document.getElementById(`fighter${side}Preview`).classList.remove('visible');
+        // Refresh other dropdown if open
+        const otherSide = side === 'A' ? 'B' : 'A';
+        const otherDrop = document.getElementById(`dropdown${otherSide}`);
+        if (otherDrop.classList.contains('open')) {
+          buildDropdown(otherSide, document.getElementById(`searchInput${otherSide}`).value);
+        }
+        updatePredictBtn();
+        input.focus();
+      });
+    }
+
+    // Init both sides once
+    setupSearchSide('A');
+    setupSearchSide('B');
+
+    /* ════════════════════════════════════════════
+       API: FIGHTER STATS PREVIEW
+    ════════════════════════════════════════════ */
+    async function showFighterPreview(side, name) {
+      document.getElementById(`fcp${side}Name`).textContent = name;
+      document.getElementById(`fcp${side}Record`).textContent = 'Loading…';
+      document.getElementById(`fighter${side}Preview`).classList.add('visible');
+
+      if (fighterStatsCache[name]) {
+        renderFighterPreview(side, name, fighterStatsCache[name]);
+        return;
+      }
+
+      try {
+        const res   = await fetch(`/api/fighter_stats?name=${encodeURIComponent(name)}`);
+        const stats = await res.json();
+        if (stats.error) throw new Error(stats.error);
+        fighterStatsCache[name] = stats;
+        renderFighterPreview(side, name, stats);
+        // Now we have the fight count — re-sort the roster and update fight badges
+        // in any open dropdown
+        divisionRoster = divisionRoster.map(r =>
+          r.name === name ? { ...r, fights: getFightCount(name) } : r
+        );
+        divisionRoster.sort((a, b) => b.fights - a.fights || a.name.localeCompare(b.name));
+      } catch (err) {
+        document.getElementById(`fcp${side}Record`).textContent = 'Stats unavailable';
+        console.error('fighter_stats error:', err);
+      }
+    }
+
+    function renderFighterPreview(side, name, data) {
+      document.getElementById(`fcp${side}Name`).textContent = name;
+      document.getElementById(`fcp${side}Record`).textContent = `MMA Record: ${data.record}`;
+      const statsEl = document.getElementById(`fcp${side}Stats`);
+      statsEl.innerHTML = data.stats.map(s => `
+        <div class="fcp-stat">
+          <span class="fcp-stat-val">${s.val}</span>
+          <span class="fcp-stat-lbl">${s.lbl}</span>
+        </div>
+      `).join('');
+    }
+
+    /* updatePredictBtn — also disables if same fighter selected */
+    function updatePredictBtn() {
+      const btn = document.getElementById('predictBtn');
+      btn.disabled = !(fighterA && fighterB && fighterA !== fighterB);
+    }
+
+    /* ════════════════════════════════════════════
+       BACK / RESET BUTTONS
+    ════════════════════════════════════════════ */
+    document.getElementById('backBtn').addEventListener('click', () => setStep(1));
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      document.getElementById('resultsSection').classList.remove('visible');
+      setStep(1);
+      window.scrollTo({ top: document.getElementById('selectorSection').offsetTop - 80, behavior: 'smooth' });
+    });
+
+    /* ════════════════════════════════════════════
+       GENERATE PREDICTION  (calls real API)
+    ════════════════════════════════════════════ */
+    document.getElementById('predictBtn').addEventListener('click', () => {
+      generatePrediction(selectedWeightClass, fighterA, fighterB);
+    });
+
+    async function generatePrediction(wc, nameA, nameB) {
+      // Disable button & show loading state
+      const btn = document.getElementById('predictBtn');
+      btn.disabled = true;
+      btn.textContent = 'Calculating…';
+
+      try {
+        const res  = await fetch('/api/predict', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ fighter_a: nameA, fighter_b: nameB, weight_class: wc }),
+        });
+        const d = await res.json();
+
+        if (d.error) throw new Error(d.error);
+
+        // Update header
+        document.getElementById('resultsWeightTag').textContent = wc.toUpperCase();
+        document.getElementById('resultsTitle').textContent     = `${nameA} vs ${nameB}`;
+        document.getElementById('resNameA').textContent = nameA.toUpperCase();
+        document.getElementById('resNameB').textContent = nameB.toUpperCase();
+
+        // Mark step 3
+        setStep(3);
+
+        // Show results section
+        const resultsEl = document.getElementById('resultsSection');
+        resultsEl.classList.add('visible');
+        setTimeout(() => {
+          resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+
+        // Animate everything
+        setTimeout(() => {
+          animateRing('A', d.winA);
+          animateRing('B', d.winB);
+          animateProbBar(nameA, nameB, d.winA, d.winB);
+          buildMethodCards(d);
+          buildRoundBreakdown(d);
+        }, 350);
+
+      } catch (err) {
+        alert(`Prediction error: ${err.message}`);
+        console.error('predict error:', err);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Generate Prediction →';
+        updatePredictBtn();
+      }
+    }
+
+    /* ════════════════════════════════════════════
+       RING ANIMATION
+    ════════════════════════════════════════════ */
+    function animateRing(side, pct) {
+      const fillEl = document.getElementById(`ringFill${side}`);
+      const pctEl  = document.getElementById(`ringPct${side}`);
+      const r = 96;
+      const circumference = 2 * Math.PI * r;
+
+      fillEl.style.strokeDasharray  = circumference;
+      fillEl.style.strokeDashoffset = circumference;
+      fillEl.getBoundingClientRect(); // force reflow
+
+      fillEl.style.strokeDashoffset = circumference * (1 - pct / 100);
+
+      let start = null;
+      const duration = 1200;
+      function step(ts) {
+        if (!start) start = ts;
+        const progress = Math.min((ts - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        pctEl.textContent = Math.round(ease * pct) + '%';
+        if (progress < 1) requestAnimationFrame(step);
+        else pctEl.textContent = pct + '%';
+      }
+      requestAnimationFrame(step);
+    }
+
+    /* ════════════════════════════════════════════
+       PROBABILITY BAR
+    ════════════════════════════════════════════ */
+    function animateProbBar(nameA, nameB, pctA, pctB) {
+      document.getElementById('probNameA').textContent = nameA.split(' ').slice(-1)[0].toUpperCase();
+      document.getElementById('probNameB').textContent = nameB.split(' ').slice(-1)[0].toUpperCase();
+      document.getElementById('probPctA').textContent  = pctA + '%';
+      document.getElementById('probPctB').textContent  = pctB + '%';
+      requestAnimationFrame(() => {
+        document.getElementById('probBarA').style.width = pctA + '%';
+        document.getElementById('probBarB').style.width = pctB + '%';
+      });
+    }
+
+    /* ════════════════════════════════════════════
+       METHOD CARDS
+    ════════════════════════════════════════════ */
+    function buildMethodCards(d) {
+      const colA = document.getElementById('methodColA');
+      const colB = document.getElementById('methodColB');
+      colA.innerHTML = '';
+      colB.innerHTML = '';
+
+      const methodsA = [
+        { label: 'KO + WIN',  pct: d.koA  },
+        { label: 'SUB + WIN', pct: d.subA },
+        { label: 'DEC + WIN', pct: d.decA }
+      ];
+      const methodsB = [
+        { label: 'KO + WIN',  pct: d.koB  },
+        { label: 'SUB + WIN', pct: d.subB },
+        { label: 'DEC + WIN', pct: d.decB }
+      ];
+
+      methodsA.forEach(m => {
+        colA.innerHTML += `
+          <div class="method-card">
+            <div class="method-card-label">${m.label}</div>
+            <div class="method-card-pct">${m.pct}%</div>
+          </div>`;
+      });
+      methodsB.forEach(m => {
+        colB.innerHTML += `
+          <div class="method-card">
+            <div class="method-card-label">${m.label}</div>
+            <div class="method-card-pct">${m.pct}%</div>
+          </div>`;
+      });
+    }
+
+    /* ════════════════════════════════════════════
+       ROUND BREAKDOWN
+    ════════════════════════════════════════════ */
+    function buildRoundBreakdown(d) {
+      const roundCol = document.getElementById('roundCol');
+      roundCol.innerHTML = '';
+
+      const rounds = d.koRoundsA ? d.koRoundsA.length : 5;
+
+      const buildGroup = (methodLabel, roundsA, roundsB) => {
+        let rowsHTML = '';
+        for (let i = 0; i < rounds; i++) {
+          const rLabel = `R${i + 1}`;
+          const vA = roundsA && roundsA[i] != null ? roundsA[i] + '%' : '—';
+          const vB = roundsB && roundsB[i] != null ? roundsB[i] + '%' : '—';
+          rowsHTML += `
+            <div class="round-row">
+              <span class="round-pill-val cyan">${vA}</span>
+              <span class="round-pill-label">${rLabel}</span>
+              <span class="round-pill-val red right">${vB}</span>
+            </div>`;
+        }
+        return `
+          <div class="round-pills-group">
+            <div class="round-group-header">
+              <span class="rgh-label">Fighter A</span>
+              <span class="rgh-method">${methodLabel}</span>
+              <span class="rgh-label right">Fighter B</span>
+            </div>
+            ${rowsHTML}
+          </div>`;
+      };
+
+      roundCol.innerHTML =
+        `<div class="round-section-title">Round-by-Round Breakdown</div>` +
+        buildGroup('KO + WIN',  d.koRoundsA,  d.koRoundsB) +
+        buildGroup('SUB + WIN', d.subRoundsA, d.subRoundsB);
+    }
+
+  })();
+  </script>
+</body>
+</html>

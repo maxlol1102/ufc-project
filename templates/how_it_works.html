@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>How The AI Works — MMA UFC Prediction</title>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/hiw_style.css') }}">
+
+</head>
+<body>
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="loader-text">HOW IT <span>WORKS</span></div>
+    <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="site-header" id="header">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='img/UFC-icon.png') }}" alt="UFC" onerror="this.style.display='none'">
+    </div>
+    <nav class="main-nav">
+      <a href="/">Home</a>
+      <a href="/how_it_works" class="active">How It Works</a>
+      <a href="/analyze">Analyze</a>
+      <a href="/bayes_ai" class="nav-cta">Bayes AI →</a>
+    </nav>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+  </header>
+
+  <nav class="mobile-nav" id="mobileNav">
+    <a href="/">Home</a>
+    <a href="/how_it_works">How It Works</a>
+    <a href="/analyze">Analyze</a>
+    <a href="/bayes_ai">Bayes AI →</a>
+  </nav>
+
+  <main>
+
+    <!-- PAGE HERO -->
+    <section class="page-hero">
+      <div class="page-hero-bg"></div>
+      <canvas id="pageCanvas"></canvas>
+      <div class="page-hero-line"></div>
+      <div class="page-hero-inner">
+        <p class="page-eyebrow">Bayesian Intelligence Framework</p>
+        <h1>Inside The<br><span>AI</span> Engine</h1>
+        <p class="page-hero-sub">A deep dive into the probabilistic modeling, machine learning architecture, and Bayesian inference that powers every fight prediction.</p>
+      </div>
+    </section>
+
+    <!-- TICKER -->
+    <div class="ticker-wrap" aria-hidden="true">
+      <div class="ticker-track">
+        <div class="ticker-item">Data Collection</div>
+        <div class="ticker-item">Feature Engineering</div>
+        <div class="ticker-item">Bayesian Inference</div>
+        <div class="ticker-item">Model Training</div>
+        <div class="ticker-item">Result Visualization</div>
+        <div class="ticker-item">Probabilistic Modeling</div>
+        <div class="ticker-item">Machine Learning</div>
+        <div class="ticker-item">Sports Data Science</div>
+        <div class="ticker-item">Data Collection</div>
+        <div class="ticker-item">Feature Engineering</div>
+        <div class="ticker-item">Bayesian Inference</div>
+        <div class="ticker-item">Model Training</div>
+        <div class="ticker-item">Result Visualization</div>
+        <div class="ticker-item">Probabilistic Modeling</div>
+        <div class="ticker-item">Machine Learning</div>
+        <div class="ticker-item">Sports Data Science</div>
+      </div>
+    </div>
+
+    <!-- OVERVIEW NUMBERS STRIP -->
+    <section class="overview-strip reveal">
+      <div class="overview-grid">
+        <div class="overview-item">
+          <div class="overview-num">85<span style="font-size:1.6rem;color:var(--red);">%</span></div>
+          <div class="overview-label">Prediction Accuracy</div>
+          <div class="overview-desc">Validated across historical UFC fight data</div>
+        </div>
+        <div class="overview-item">
+          <div class="overview-num">8.3K<span style="font-size:1.2rem;color:var(--red2);">+</span></div>
+          <div class="overview-label">Fights Analysed</div>
+          <div class="overview-desc">Historical dataset spanning 7+ years</div>
+        </div>
+        <div class="overview-item">
+          <div class="overview-num">48</div>
+          <div class="overview-label">Predictive Features</div>
+          <div class="overview-desc">Striking, grappling, reach, pace & more</div>
+        </div>
+        <div class="overview-item">
+          <div class="overview-num">5</div>
+          <div class="overview-label">Pipeline Stages</div>
+          <div class="overview-desc">From raw data to probability output</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INTRO -->
+    <section class="intro-section">
+      <div class="intro-inner">
+        <p class="section-label reveal">Research Overview</p>
+        <h2 class="section-title reveal" style="transition-delay:0.08s">How The MMA<br>Prediction AI Works</h2>
+        <div class="section-divider reveal" style="transition-delay:0.12s"></div>
+
+        <p class="intro-body reveal" style="transition-delay:0.16s">
+          This research project investigates the application of predictive analytics and artificial intelligence to forecasting outcomes in professional Mixed Martial Arts events, including those organized by the <span class="highlight">Ultimate Fighting Championship (UFC)</span>. The study focuses on two primary domains: probabilistic outcome prediction and performance-based fantasy modeling.
+        </p>
+        <p class="intro-body reveal" style="transition-delay:0.2s">
+          A central component is <span class="highlight">Bayes AI</span> — an intelligent predictive framework developed to estimate fight outcomes through the integration of <span class="highlight-red2">Bayesian modeling</span>, <span class="highlight-red2">machine learning</span>, and <span class="highlight-red2">advanced data analysis</span>. The system produces highly interpretable, data-driven probability estimates across multiple outcome dimensions: win/loss likelihood, method of victory, and round-specific finishing probabilities.
+        </p>
+
+        <div class="pills-wrap reveal" style="transition-delay:0.24s">
+          <div class="pill">Bayesian Inference</div>
+          <div class="pill">Probabilistic Modeling</div>
+          <div class="pill">ML Integration</div>
+          <div class="pill">Win/Loss Probability</div>
+          <div class="pill">Method of Victory</div>
+          <div class="pill">Round Finishing</div>
+          <div class="pill">Fantasy Sports</div>
+          <div class="pill">Adaptive Learning</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5-STEP PROCESS -->
+    <section class="process-section">
+      <div class="process-header">
+        <p class="section-label reveal">System Architecture</p>
+        <h2 class="section-title reveal" style="transition-delay:0.08s">The 5-Stage Pipeline</h2>
+      </div>
+
+      <div class="process-grid">
+
+        <div class="process-card reveal" style="transition-delay:0s">
+          <div class="process-card-bg-num">01</div>
+          <div class="process-card-step">Step 01</div>
+          <h3>Data Collection</h3>
+          <p>The system aggregates comprehensive fight statistics, athlete profiles, and performance metrics from verified and reputable data sources. These data include historical fight outcomes, striking and grappling statistics, and contextual performance indicators spanning over 7 years of UFC events.</p>
+          <div class="process-card-tags">
+            <span class="process-tag">Historical Records</span>
+            <span class="process-tag">Fight Stats</span>
+            <span class="process-tag">Athlete Profiles</span>
+          </div>
+        </div>
+
+        <div class="process-card reveal" style="transition-delay:0.07s">
+          <div class="process-card-bg-num">02</div>
+          <div class="process-card-step">Step 02</div>
+          <h3>Feature Engineering</h3>
+          <p>Relevant features — including striking accuracy, takedown defense, reach, endurance, and fight pace — are extracted, normalized, and encoded for computational analysis. This stage ensures model inputs accurately represent the technical and physical dimensions of each fighter's performance.</p>
+          <div class="process-card-tags">
+            <span class="process-tag">Normalization</span>
+            <span class="process-tag">48 Features</span>
+            <span class="process-tag">Encoding</span>
+          </div>
+        </div>
+
+        <div class="process-card reveal" style="transition-delay:0.14s">
+          <div class="process-card-bg-num">03</div>
+          <div class="process-card-step">Step 03</div>
+          <h3>Bayesian Inference</h3>
+          <p>The core modeling layer calculates probability distributions for each possible outcome. This approach incorporates prior knowledge and continuously updates predictions as new information becomes available, enabling adaptive and context-sensitive learning specific to each matchup.</p>
+          <div class="process-card-tags">
+            <span class="process-tag">Prior Knowledge</span>
+            <span class="process-tag">Posterior Updates</span>
+            <span class="process-tag">Distributions</span>
+          </div>
+        </div>
+
+        <div class="process-card reveal" style="transition-delay:0.21s">
+          <div class="process-card-bg-num">04</div>
+          <div class="process-card-step">Step 04</div>
+          <h3>Model Training &amp; Optimization</h3>
+          <p>Machine learning algorithms train on extensive historical datasets, optimizing parameters to minimize prediction error and enhance model generalization. The framework employs cross-validation and uncertainty quantification to assess predictive confidence and robustness.</p>
+          <div class="process-card-tags">
+            <span class="process-tag">Cross-Validation</span>
+            <span class="process-tag">Optimization</span>
+            <span class="process-tag">Uncertainty</span>
+          </div>
+        </div>
+
+        <div class="process-card reveal" style="transition-delay:0.28s">
+          <div class="process-card-bg-num">05</div>
+          <div class="process-card-step">Step 05</div>
+          <h3>Result Generation &amp; Visualization</h3>
+          <p>Final predictions are expressed as clear probabilistic outcomes — offering transparent, data-backed insights into likely fight scenarios. Results are designed to inform analytical research and decision-making contexts, including wagering models and fantasy sports strategies.</p>
+          <div class="process-card-tags">
+            <span class="process-tag">Probability Output</span>
+            <span class="process-tag">Visual Dashboard</span>
+            <span class="process-tag">Fight Insights</span>
+          </div>
+        </div>
+
+        <!-- Sixth card: summary / visual flourish -->
+        <div class="process-card reveal" style="transition-delay:0.35s; background: rgba(0,229,255,0.025); border-left: 2px solid rgba(0,229,255,0.15);">
+          <div class="process-card-bg-num" style="color:rgba(0,229,255,0.04);">∞</div>
+          <div class="process-card-step" style="color:var(--red2);">Continuous Loop</div>
+          <h3>Adaptive Refinement</h3>
+          <p>The underlying model continuously refines its parameters as new fight data are incorporated after each UFC event. This enables long-term adaptive learning, improved prediction stability, and evolving accuracy over time without requiring full retraining cycles.</p>
+          <div class="process-card-tags">
+            <span class="process-tag">Continuous Learning</span>
+            <span class="process-tag">Auto-Refinement</span>
+            <span class="process-tag">Live Updates</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ACCURACY SECTION -->
+    <section class="accuracy-band">
+
+      <!-- SVG Gradient Def -->
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+          <linearGradient id="accGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#00b8d4"/>
+            <stop offset="100%" style="stop-color:#00e5ff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+
+      <div class="accuracy-inner">
+        <div class="reveal">
+          <div class="accuracy-ring-wrap" id="accRingWrap">
+            <div class="acc-ring-glow"></div>
+            <svg class="acc-ring-svg" viewBox="0 0 200 200">
+              <circle class="acc-ring-track" cx="100" cy="100" r="86"/>
+              <circle class="acc-ring-fill" id="accRingFill" cx="100" cy="100" r="86"/>
+            </svg>
+            <div class="acc-ring-content">
+              <span class="acc-ring-pct" id="accRingPct">0%</span>
+              <span class="acc-ring-label">Prediction<br>Accuracy</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="accuracy-content reveal" style="transition-delay:0.1s">
+          <p class="section-label">Model Performance</p>
+          <h2 class="section-title">Best &amp; Accurate<br>Prediction on MMA</h2>
+          <div class="section-divider"></div>
+          <p>Our Bayesian AI system leverages years of historical fight data, fighter metrics, and match-up statistics to deliver industry-leading predictive accuracy. Each model is continuously retrained as new data is incorporated, ensuring the system evolves with the sport.</p>
+          <p>Confidence intervals and uncertainty estimates are embedded into every prediction, giving you a transparent view of the model's certainty — not just a raw number.</p>
+          <div class="accuracy-stats">
+            <div class="acc-stat">
+              <span class="acc-stat-val">94<span>%</span></span>
+              <span class="acc-stat-lbl">KO Accuracy</span>
+            </div>
+            <div class="acc-stat">
+              <span class="acc-stat-val">88<span>%</span></span>
+              <span class="acc-stat-lbl">Sub Accuracy</span>
+            </div>
+            <div class="acc-stat">
+              <span class="acc-stat-val">79<span>%</span></span>
+              <span class="acc-stat-lbl">Dec Accuracy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESEARCH CONTRIBUTIONS -->
+    <section class="contrib-section">
+      <div class="contrib-inner">
+        <div class="contrib-left reveal-left">
+          <p class="section-label">Research Impact</p>
+          <h2 class="section-title">Research<br>Contributions</h2>
+          <div class="section-divider"></div>
+          <p class="contrib-body">The development of Bayes AI aims to advance computational accuracy and methodological transparency in combat sports analytics. By combining statistical inference with adaptive learning, the model demonstrates how artificial intelligence can deliver nuanced, evidence-based forecasts in complex, dynamic competitive environments.</p>
+          <p class="contrib-body">Beyond predictive modeling, the research contributes to the growing field of <span class="highlight-red2">sports data science</span>, highlighting how the integration of probabilistic reasoning, machine learning, and domain-specific expertise can enhance the interpretability and reliability of outcome prediction systems.</p>
+          <a href="/bayes_ai" class="contrib-cta">Try Bayes AI →</a>
+        </div>
+
+        <div class="contrib-right reveal" style="transition-delay:0.12s">
+          <div class="contrib-list">
+            <div class="contrib-item">
+              <div class="contrib-icon">1</div>
+              <div class="contrib-text-wrap">
+                <div class="contrib-item-title">Computational Accuracy</div>
+                <div class="contrib-item-desc">Advancing the state-of-the-art in fight outcome forecasting through rigorous statistical methodology and continuous model refinement.</div>
+              </div>
+            </div>
+            <div class="contrib-item">
+              <div class="contrib-icon">2</div>
+              <div class="contrib-text-wrap">
+                <div class="contrib-item-title">Methodological Transparency</div>
+                <div class="contrib-item-desc">Every prediction includes interpretable probability distributions and confidence intervals — no black-box outputs.</div>
+              </div>
+            </div>
+            <div class="contrib-item">
+              <div class="contrib-icon">3</div>
+              <div class="contrib-text-wrap">
+                <div class="contrib-item-title">Sports Data Science</div>
+                <div class="contrib-item-desc">Contributing to a growing discipline that merges domain expertise, probabilistic reasoning, and machine learning in competitive sports contexts.</div>
+              </div>
+            </div>
+            <div class="contrib-item">
+              <div class="contrib-icon">4</div>
+              <div class="contrib-text-wrap">
+                <div class="contrib-item-title">Adaptive Learning</div>
+                <div class="contrib-item-desc">The model evolves with every UFC event — incorporating new data to maintain predictive relevance and long-term stability.</div>
+              </div>
+            </div>
+            <div class="contrib-item">
+              <div class="contrib-icon">5</div>
+              <div class="contrib-text-wrap">
+                <div class="contrib-item-title">Decision Support</div>
+                <div class="contrib-item-desc">Designed to augment analytical judgment in research, fantasy sports, and educational contexts through evidence-based probability modeling.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA BAND -->
+    <section class="cta-band">
+      <div class="cta-band-inner">
+        <div class="cta-band-text">
+          <div class="cta-band-eyebrow">Ready to Predict?</div>
+          <div class="cta-band-title">Run a Fight Prediction Now</div>
+        </div>
+        <a href="/bayes_ai" class="cta-band-btn">Launch Bayes AI →</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <p>Advanced Bayesian AI fight prediction for MMA. Built for research, analytics, and sports intelligence.</p>
+      </div>
+      <div class="footer-nav-grid">
+        <div class="footer-nav-col">
+          <h4>Navigation</h4>
+          <a href="/">Home</a>
+          <a href="/how_it_works">How It Works</a>
+          <a href="/bayes_ai">Bayes AI</a>
+          <a href="/analyze">Analyze</a>
+        </div>
+        <div class="footer-nav-col">
+          <h4>Features</h4>
+          <a href="#">Fight Prediction</a>
+          <a href="#">Fighter Stats</a>
+          <a href="#">Event Analysis</a>
+          <a href="#">Fantasy Scoring</a>
+        </div>
+        <div class="footer-nav-col">
+          <h4>Research</h4>
+          <a href="#">Methodology</a>
+          <a href="#">Data Sources</a>
+          <a href="#">Model Accuracy</a>
+          <a href="#">Publications</a>
+        </div>
+      </div>
+    </div>
+    <p class="disclaimer">
+      <strong>Disclaimer:</strong> The content and predictive models presented on this website are developed for academic and research purposes only.
+      The information, visualisations, and analytical results are not intended for commercial use, financial decision-making, or wagering of any kind.
+      All outcomes generated by the artificial intelligence system are probabilistic estimates based on available data and should not be interpreted
+      as guaranteed results. The developers assume no responsibility for any actions, interpretations, or decisions made based on the information provided herein.
+    </p>
+    <div class="footer-bottom">
+      <p>© 2025 MMA <span class="red-dot">●</span> UFC Prediction</p>
+      <p>Research &amp; Development Project</p>
+    </div>
+  </footer>
+
+  <button id="backTop" aria-label="Back to top">↑</button>
+
+  <script>
+  (() => {
+    'use strict';
+
+    /* LOADER */
+    window.addEventListener('load', () => {
+      setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1400);
+    });
+
+    /* CURSOR */
+    const cur = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    function animCursor() {
+      cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+      rx += (mx - rx) * 0.14; ry += (my - ry) * 0.14;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(animCursor);
+    }
+    animCursor();
+
+    /* HEADER SCROLL */
+    const header = document.getElementById('header');
+    const backTop = document.getElementById('backTop');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 60);
+      backTop.classList.toggle('show', window.scrollY > 400);
+    }, { passive: true });
+    backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    /* HAMBURGER */
+    const ham = document.getElementById('hamburger');
+    const mNav = document.getElementById('mobileNav');
+    ham.addEventListener('click', () => {
+      ham.classList.toggle('active');
+      mNav.classList.toggle('open');
+    });
+
+    /* PARTICLE CANVAS */
+    const canvas = document.getElementById('pageCanvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+    function resizeCanvas() {
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.size = Math.random() * 1.2 + 0.3;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.alpha = Math.random() * 0.4 + 0.1;
+        this.color = Math.random() < 0.25 ? '#00e5ff' : (Math.random() < 0.12 ? '#e8001d' : '#ffffff');
+      }
+      update() {
+        this.x += this.speedX; this.y += this.speedY;
+        if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = this.alpha;
+        ctx.fill();
+      }
+    }
+    for (let i = 0; i < 70; i++) particles.push(new Particle());
+    function animParticles() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => { p.update(); p.draw(); });
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(animParticles);
+    }
+    animParticles();
+
+    /* SCROLL REVEALS */
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal, .reveal-left').forEach(el => revealObs.observe(el));
+
+    /* ACCURACY RING ANIMATION */
+    const ringFill = document.getElementById('accRingFill');
+    const ringPct  = document.getElementById('accRingPct');
+    const TARGET_PCT = 85;
+    const r = 86;
+    const circumference = 2 * Math.PI * r;
+    ringFill.style.strokeDasharray  = circumference;
+    ringFill.style.strokeDashoffset = circumference;
+
+    let ringAnimated = false;
+    const ringObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !ringAnimated) {
+          ringAnimated = true;
+          // Animate stroke
+          const targetOffset = circumference * (1 - TARGET_PCT / 100);
+          ringFill.style.strokeDashoffset = targetOffset;
+          // Animate number
+          let start = null;
+          const duration = 1400;
+          function step(ts) {
+            if (!start) start = ts;
+            const prog = Math.min((ts - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - prog, 3);
+            ringPct.textContent = Math.round(ease * TARGET_PCT) + '%';
+            if (prog < 1) requestAnimationFrame(step);
+            else ringPct.textContent = TARGET_PCT + '%';
+          }
+          requestAnimationFrame(step);
+          ringObs.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+    ringObs.observe(document.getElementById('accRingWrap'));
+
+  })();
+  </script>
+</body>
+</html>
