@@ -1,7 +1,7 @@
-#Bayesian Sports Prediction System
+###Bayesian Sports Prediction System
 
 ## Overview
-This project implements a **Bayesian framework for predicting competitive sports outcomes**, based on a graduate capstone research study.
+This project implements a **Bayesian framework for predicting competitive sports outcomes**as part of a graduate capstone research study.
 
 The system combines:
 - Bayesian inference (Bradley–Terry model)
@@ -22,7 +22,7 @@ It is applied to:
   - Uncertainty-aware predictions
 
 - **Dynamic Skill Updates**
-  - Skill evolves over time using Bayesian updates
+  - Skill evolves using Bayesian updates
   - Accounts for inactivity and performance changes
 
 - **Machine Learning Ensemble**
