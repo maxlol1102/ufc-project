@@ -57,23 +57,6 @@ It is applied to:
 
 ---
 
-## Project Structure
-
-
-UFC_project/
-│── data/ # Raw and processed datasets
-│── src/ # Core implementation
-│ ├── bayesian_model/ # Bradley-Terry + skill tracking
-│ ├── features/ # Feature engineering
-│ ├── models/ # ML models (LR, XGBoost)
-│ ├── pipeline/ # End-to-end prediction pipeline
-│── notebooks/ # Experiments and analysis
-│── results/ # Output metrics and plots
-│── README.md
-
-
----
-
 ## Methodology
 
 ### 1. Bayesian Modeling
@@ -85,7 +68,7 @@ UFC_project/
 - Uncertainty increases during inactivity
 
 ### 3. Feature Engineering
-- 21 engineered features including:
+- 21 engineered features, including:
   - Physical attributes (age, reach)
   - Career statistics
   - Recency-weighted performance
