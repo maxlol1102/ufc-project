@@ -1,4 +1,4 @@
-###Bayesian Sports Prediction System
+# Bayesian Sports Prediction System
 
 ## Overview
 This project implements a **Bayesian framework for predicting competitive sports outcomes**as part of a graduate capstone research study.
