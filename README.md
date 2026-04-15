@@ -1,7 +1,7 @@
 # Bayesian Sports Prediction System
 
 ## Overview
-This project implements a **Bayesian framework for predicting competitive sports outcomes**as part of a graduate capstone research study.
+This project implements a **Bayesian framework for predicting competitive sports outcomes** as part of a graduate capstone research study.
 
 The system combines:
 - Bayesian inference (Bradley–Terry model)
